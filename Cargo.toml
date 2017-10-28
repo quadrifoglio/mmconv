@@ -1,0 +1,6 @@
+[package]
+name = "mmconv"
+version = "0.1.0"
+authors = ["quadrifoglio <quadrifoglio.clement@protonmail.com>"]
+
+[dependencies]
