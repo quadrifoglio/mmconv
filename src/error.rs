@@ -9,6 +9,11 @@ error_chain!{
             description("error in one of the ffmpeg libraries")
             display("ffmpeg library error: {}", msg)
         }
+
+        NoDecoderFound(codec: String) {
+            description("no decoder found on the system")
+            display("no decoder found for codec `{}`", codec)
+        }
     }
 }
 
@@ -28,4 +33,9 @@ pub fn ff(err: c_int) -> Error {
 
         Error::from(ErrorKind::FFmpegError(msg))
     }
+}
+
+/// Construct an FFmpegError with a custom error message.
+pub fn ffcustom<S: Into<String>>(msg: S) -> Error {
+    Error::from(ErrorKind::FFmpegError(msg.into()))
 }
