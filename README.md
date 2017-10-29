@@ -1,7 +1,7 @@
 # mmconv
 
-rust multimedia conversion library, based on ffmpeg.
+Rust multimedia conversion library, based on ffmpeg.
 
-## license
+## License
 
 wtfpl
