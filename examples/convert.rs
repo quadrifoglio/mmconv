@@ -20,7 +20,7 @@ fn main() {
 
         match stream.kind {
             StreamKind::Video => println!("Found video stream: {}", codec),
-            StreamKind::Audio => println!("Found stream stream: {}", codec),
+            StreamKind::Audio => println!("Found audio stream: {}", codec),
             StreamKind::Subtitle => println!("Found subtitle stream: {}", codec),
 
             _ => println!("Found stream with unknown type"),
