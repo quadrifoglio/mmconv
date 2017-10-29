@@ -6,10 +6,11 @@ use error::{self, ErrorKind, Result};
 
 /// Represents a multimedia stream that reside inside an input file.
 pub struct Stream {
-    codec_ctx: *mut ff::AVCodecContext,
+    pub(super) codec_ctx: *mut ff::AVCodecContext,
 }
 
 /// All the different types of multimedia streams.
+#[derive(PartialEq)]
 pub enum StreamKind {
     Unknown,
     Video,
@@ -19,7 +20,7 @@ pub enum StreamKind {
 
 impl Stream {
     /// Retreive stream information, and try to open the associated codec.
-    pub unsafe fn from_raw(s: *mut ff::AVStream) -> Result<Stream> {
+    pub(super) unsafe fn from_raw(s: *mut ff::AVStream) -> Result<Stream> {
         let codec_ctx = (*s).codec;
 
         match (*codec_ctx).codec_type {
