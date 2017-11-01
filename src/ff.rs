@@ -130,15 +130,71 @@ pub(super) fn open_output(filename: String) -> Result<FormatContextPtr> {
 }
 
 /// Allocate and initialize a multimedia output stream.
-pub(super) fn init_output_stream(fmt_ctx: FormatContextPtr) -> Result<StreamPtr> {
+pub(super) fn init_output_stream(ctx: FormatContextPtr) -> Result<StreamPtr> {
     unsafe {
-        let stream = sys::avformat_new_stream(fmt_ctx, ptr::null_mut());
-        if stream == ptr::null_mut() {
+        let out_stream = sys::avformat_new_stream(ctx, ptr::null_mut());
+        if out_stream == ptr::null_mut() {
             return Err(error::ffcustom("failed to allocate output stream"));
         }
 
-        Ok(stream)
+        Ok(out_stream)
     }
+}
+
+/// Set the parameters to allow for a transcode of the specified input stream to an output stream.
+pub(super) fn prepare_transcode_stream(in_stream: StreamPtr, out_stream: StreamPtr) -> Result<()> {
+    unsafe {
+        let dec_ctx = (*in_stream).codec;
+        let enc_ctx = (*out_stream).codec;
+
+        let encoder = sys::avcodec_find_encoder((*dec_ctx).codec_id);
+        if encoder == ptr::null_mut() {
+            return Err(
+                ErrorKind::NoDecoderFound(codec_name((*dec_ctx).codec_id).to_owned()).into(),
+            );
+        }
+
+        if (*dec_ctx).codec_type == sys::AVMediaType::AVMEDIA_TYPE_VIDEO {
+            (*enc_ctx).width = (*dec_ctx).width;
+            (*enc_ctx).height = (*dec_ctx).height;
+            (*enc_ctx).sample_aspect_ratio = (*dec_ctx).sample_aspect_ratio;
+            (*enc_ctx).time_base = (*dec_ctx).time_base;
+
+            if (*encoder).pix_fmts != ptr::null_mut() {
+                (*enc_ctx).pix_fmt = *(*encoder).pix_fmts;
+            }
+        }
+        if (*dec_ctx).codec_type == sys::AVMediaType::AVMEDIA_TYPE_AUDIO {
+            (*enc_ctx).sample_rate = (*dec_ctx).sample_rate;
+            (*enc_ctx).channel_layout = (*dec_ctx).channel_layout;
+            (*enc_ctx).channels = sys::av_get_channel_layout_nb_channels((*enc_ctx).channel_layout);
+            (*enc_ctx).sample_fmt = *(*encoder).sample_fmts;
+            (*enc_ctx).time_base = sys::AVRational {
+                num: 1,
+                den: (*enc_ctx).sample_rate,
+            };
+        }
+
+        let err = sys::avcodec_open2(enc_ctx, encoder, ptr::null_mut());
+        if err < 0 {
+            return Err(error::ff(err));
+        }
+    }
+
+    Ok(())
+}
+
+/// Set the parameters to allow for a remux of the specified input stream into the output
+/// stream without any processing.
+pub(super) fn remux_stream(in_stream: StreamPtr, out_stream: StreamPtr) -> Result<()> {
+    unsafe {
+        let err = sys::avcodec_copy_context((*out_stream).codec, (*in_stream).codec);
+        if err < 0 {
+            return Err(error::ff(err));
+        }
+    }
+
+    Ok(())
 }
 
 /// Return the name of a codec.

@@ -27,27 +27,31 @@ pub struct Transcode {
 
 impl Transcode {
     /// Initialize a mutlimedia transcoding operation.
-    pub fn new(input: Input, output: Output) -> Transcode {
-        Transcode {
-            input: input,
-            output: output,
-        }
-    }
+    pub fn new(input: Input, output: Output) -> Result<Transcode> {
+        let out_fmt_ctx = ff::open_output(output.filename.clone())?;
 
-    /// Actually transcode the input source.
-    pub fn run(&mut self) -> Result<()> {
-        let out_fmt_ctx = ff::open_output(self.output.filename.clone())?;
-
-        for stream in self.input.streams() {
-            let output_stream = ff::init_output_stream(out_fmt_ctx)?;
+        for stream in input.streams() {
+            let out_stream = ff::init_output_stream(out_fmt_ctx)?;
 
             match stream.kind {
-                StreamKind::Video | StreamKind::Audio => {}
+                StreamKind::Video | StreamKind::Audio => {
+                    ff::prepare_transcode_stream(stream.ptr, out_stream)?
+                }
+
+                StreamKind::Subtitle => ff::remux_stream(stream.ptr, out_stream)?,
 
                 _ => {}
             };
         }
 
+        Ok(Transcode {
+            input: input,
+            output: output,
+        })
+    }
+
+    /// Actually transcode the input source.
+    pub fn run(&mut self) -> Result<()> {
         Ok(())
     }
 }
