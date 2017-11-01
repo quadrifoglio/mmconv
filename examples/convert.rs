@@ -2,8 +2,7 @@
 /// from MP4/H264 to WebM/VP8.
 extern crate mmconv;
 
-use mmconv::io::{Input, Output};
-use mmconv::io::stream::StreamKind;
+use mmconv::input::{Input, StreamKind};
 
 fn main() {
     mmconv::init();
@@ -16,14 +15,13 @@ fn main() {
         }
     };
 
-    let mut output = Output::create("test.out.webm").unwrap();
+    for stream in input.streams() {
+        match stream.kind {
+            StreamKind::Video => println!("Video Stream - Codec: {}", stream.codec_name),
+            StreamKind::Audio => println!("Audio Stream - Codec: {}", stream.codec_name),
+            StreamKind::Subtitle => println!("Subtitle Stream - Codec: {}", stream.codec_name),
 
-    input
-        .streams()
-        .unwrap()
-        .into_iter()
-        .filter(|stream| stream.kind() == StreamKind::Video)
-        .for_each(|stream| output.add_stream(stream));
-
-    output.process().unwrap();
+            _ => println!("Unknown stream type"),
+        }
+    }
 }

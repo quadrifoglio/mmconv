@@ -8,7 +8,7 @@ extern crate libc;
 
 mod error;
 
-pub mod io;
+pub mod input;
 
 /// Initialize the library.
 pub fn init() {
