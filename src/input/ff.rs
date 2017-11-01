@@ -89,6 +89,7 @@ pub(super) fn get_streams(fmt_ctx: FormatContextPtr) -> Vec<super::Stream> {
             vec.push(super::Stream {
                 kind: kind,
                 codec_name: codec_name(codec_ctx.codec_id).to_owned(),
+                ptr: stream,
             });
         }
     }

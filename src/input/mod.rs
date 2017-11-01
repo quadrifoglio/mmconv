@@ -41,4 +41,6 @@ pub enum StreamKind {
 pub struct Stream {
     pub kind: StreamKind,
     pub codec_name: String,
+
+    pub(crate) ptr: ff::StreamPtr,
 }

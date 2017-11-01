@@ -9,6 +9,7 @@ extern crate libc;
 mod error;
 
 pub mod input;
+pub mod transcode;
 
 /// Initialize the library.
 pub fn init() {
