@@ -1,6 +1,6 @@
 use std::ffi::CStr;
 
-use ff;
+use sys;
 use libc::c_int;
 
 error_chain!{
@@ -22,7 +22,7 @@ pub fn ff(err: c_int) -> Error {
     unsafe {
         let mut buf = vec![0i8; 255];
 
-        if ff::av_strerror(err, buf.as_mut_ptr(), 255) < 0 {
+        if sys::av_strerror(err, buf.as_mut_ptr(), 255) < 0 {
             return Error::from(ErrorKind::FFmpegError(String::from("unknown ffmpeg error")));
         }
 

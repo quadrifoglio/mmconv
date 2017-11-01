@@ -1,9 +1,8 @@
 /// This module contains the functionality allowing for transcoding of multimedia data.
 
-mod ff;
-
+use ff;
 use error::Result;
-use super::input::{Input, StreamKind};
+use input::{Input, StreamKind};
 
 /// Represents the parameters for the desired output.
 pub struct Output {

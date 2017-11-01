@@ -1,8 +1,7 @@
 /// This module contains the necessary functionality to handle an multimedia
 /// input source.
 
-mod ff;
-
+use ff;
 use error::Result;
 
 pub struct Input {

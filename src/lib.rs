@@ -3,9 +3,10 @@
 #[macro_use]
 extern crate error_chain;
 
-extern crate ffmpeg_sys as ff;
+extern crate ffmpeg_sys as sys;
 extern crate libc;
 
+mod ff;
 mod error;
 
 pub mod input;
@@ -14,6 +15,6 @@ pub mod transcode;
 /// Initialize the library.
 pub fn init() {
     unsafe {
-        ff::av_register_all();
+        sys::av_register_all();
     }
 }
